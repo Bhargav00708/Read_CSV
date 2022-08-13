@@ -1,10 +1,6 @@
-// const chai = require(`chai`);
 import chai  from "chai";
-// const chaiHTTP = require(`chai-http`);
 import chaiHTTP from "chai-http";
 import server from "../src/app";
-
-// const {server} = require(`../src/app`);
 
 chai.should();
 chai.use(chaiHTTP);
