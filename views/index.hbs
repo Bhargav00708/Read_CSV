@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Reader</title>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+        crossorigin="anonymous"></script>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body style="background-color: #a2c1c1;">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="mt-3 text-end col-8">
+                <button type="button" class="btn btn-primary">Add Book</button>
+                <button type="button" class="btn btn-primary">Add Magazine</button>
+                <button type="button" class="btn btn-primary">Export Book</button>
+                <button type="button" class="btn btn-primary">Export Magazine</button>
+            </div>
+            <div class="mt-3 text-end col-4">
+                <span style="font-weight: 500;">Search Based on ISBN and Email:</span>
+                <input type="text" placeholder="Search.." name="search" onkeyup="searchMe(this)">
+            </div>
+        </div>
+        <h2 class="text-center">Magazine Details</h2>
+        <table class="table" id="tableMagazineData">
+            <thead>
+                <tr id="tableHeader">
+
+                </tr>
+            </thead>
+            <tbody id="tableContent">
+
+            </tbody>
+        </table>
+        <h2 class="text-center" id="tableBookData">Book Details</h2>
+        <table class="table">
+            <thead>
+                <tr id="bookHeader">
+
+                </tr>
+            </thead>
+            <tbody id="bookContent">
+
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let magazineUrl = "https://raw.githubusercontent.com/echocat/nodejs-kata-1/master/data/magazines.csv";
+        let bookUrl = `https://raw.githubusercontent.com/echocat/nodejs-kata-1/master/data/books.csv`;
+        callApi(magazineUrl, `tableHeader`, `tableContent`);
+        callApi(bookUrl, `bookHeader`, `bookContent`);
+
+        function callApi(url, trContent, tdContentOp) {
+            let requestOptions = {
+                method: 'GET',
+                redirect: 'follow'
+            };
+
+            fetch(url, requestOptions)
+                .then(response => response.text())
+                .then(result => {
+                    let totalResult = result.split(`\n`);
+                    let resultHeader = totalResult[0].split(`;`);
+                    let headerId = document.getElementById(trContent);
+                    let headerEmptyString = ``;
+                    for (let i = 0; i < resultHeader.length; i++) {
+                        headerEmptyString += `<th scope="col">${resultHeader[i]}</th>`;
+                    }
+                    headerId.innerHTML = headerEmptyString;
+
+                    totalResult.shift();
+                    totalResult.sort();
+
+                    let tdContent = document.getElementById(tdContentOp);
+                    for (let i = 0; i < totalResult.length; i++) {
+                        let tdInformation = totalResult[i].split(`;`);
+                        if (tdInformation.length == 1) {
+                            continue;
+                        }
+                        let tdTr = document.createElement(`tr`);
+                        let tdEmptyString = ``;
+                        for (let j = 0; j < tdInformation.length; j++) {
+                            if (j == 1) {
+                                tdEmptyString += `<td class='isbn'>${tdInformation[j]}</td>`;
+                            }
+                            else if (j == 2) {
+                                tdEmptyString += `<td class='author'>${tdInformation[j]}</td>`;
+                            }
+                            else {
+                                tdEmptyString += `<td>${tdInformation[j]}</td>`;
+                            }
+                        }
+                        tdTr.innerHTML = tdEmptyString;
+                        tdContent.appendChild(tdTr);
+                    }
+                })
+                .catch(error => console.log('error', error));
+        }
+
+        let allIsbn = document.getElementsByClassName(`isbn`);
+        let allAuthor = document.getElementsByClassName(`author`);
+
+        function searchMe(getMe) {
+            for (let i = 0; i < allIsbn.length; i++) {
+                if (allIsbn[i].innerText.indexOf(getMe.value) > -1 || allAuthor[i].innerText.indexOf(getMe.value) > -1) {
+                    allIsbn[i].parentElement.style.display = ``;
+                }
+                else {
+                    allIsbn[i].parentElement.style.display = `none`;
+                }
+            }
+        }   
+    </script>
+</body>
+
+</html>
